@@ -1,15 +1,6 @@
 # 🎲 DiceRoller
 
-A beautiful, modern dice rolling application built with Blazor Server and Tailwind CSS.
-
-## ✨ Features
-
-- 🎯 **Standard Dice**: Roll d4, d6, d8, d10, d12, and d20
-- 🎨 **Custom Dice**: Create number ranges or color-based dice
-- 🖥️ **Fullscreen Mode**: Immersive rolling experience
-- 📊 **Roll History**: Track your previous rolls
-- 🌈 **Beautiful UI**: Modern gradient design with glassmorphism effects
-- 📱 **Responsive**: Works on desktop and mobile
+Customizeable, modern dice rolling application built with Blazor Server and Tailwind CSS.
 
 ## 🚀 Technologies Used
 
@@ -18,15 +9,6 @@ A beautiful, modern dice rolling application built with Blazor Server and Tailwi
 - **C# .NET 9** - Backend logic
 - **SVG Icons** - Scalable dice icons
 
-## 🎮 How to Use
-
-1. **Standard Dice**: Click any standard die (d4-d20) to roll
-2. **Custom Dice**: 
-   - Click the "+" button to create custom dice
-   - Choose between number ranges or color sets
-   - Give your dice a name and configure options
-3. **Fullscreen Mode**: Click "Fullscreen" on any dice for an immersive experience
-4. **History**: View your roll history and clear it when needed
 
 ## 🛠️ Development
 
@@ -63,7 +45,7 @@ dotnet run
 
 5. Open your browser to `http://localhost:5075`
 
-## 🎨 Customization
+## Customization
 
 The app uses Tailwind CSS for styling. To customize:
 
@@ -71,14 +53,4 @@ The app uses Tailwind CSS for styling. To customize:
 2. Rebuild the CSS: `npx tailwindcss -i ./wwwroot/css/tailwind.css -o ./wwwroot/app.css`
 3. Restart the application
 
-## 📝 License
 
-This project is open source and available under the [MIT License](LICENSE).
-
-## 🤝 Contributing
-
-Contributions are welcome! Feel free to submit issues and pull requests.
-
----
-
-Made with ❤️ and lots of ☕
