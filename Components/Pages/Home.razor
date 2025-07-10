@@ -1,0 +1,698 @@
+@page "/"
+@using System.Timers
+@rendermode InteractiveServer
+
+<PageTitle>DiceRoller</PageTitle>
+
+@if (FullscreenDice != null)
+{
+    <div class="fixed inset-0 bg-gradient-to-br from-indigo-900 via-purple-900 to-pink-900 z-50 flex flex-col">
+        <div class="flex justify-between items-center p-6 text-white">
+            <button
+                @onclick="ExitFullscreen"
+                class="text-white/80 hover:text-white text-lg flex items-center gap-2 transition-colors">
+                ← Back
+            </button>
+            <h1 class="text-2xl font-bold">@FullscreenDice.Name</h1>
+            <div class="w-16"></div>
+        </div>
+
+        <div class="flex-1 flex flex-col items-center justify-center px-6">
+            @if (FullscreenResult != null)
+            {
+                <div class="text-center mb-12">
+                    <div class="transition-all duration-500 @(IsRolling ? "scale-110 rotate-12" : "scale-100")">
+                        @if (FullscreenResult.Type == "number")
+                        {
+                            <div class="text-9xl font-bold text-white mb-6 drop-shadow-2xl">
+                                @FullscreenResult.Result
+                            </div>
+                        }
+                        else
+                        {
+                            <div class="flex justify-center mb-6">
+                                <div
+                                    class="w-48 h-48 rounded-full border-8 border-white shadow-2xl"
+                                    style="background-color: @FullscreenResult.Result;">
+                                </div>
+                            </div>
+                        }
+                    </div>
+                    <div class="text-white/80 text-xl font-medium">@FullscreenResult.Dice</div>
+                </div>
+            }
+            else
+            {
+                <div class="text-center mb-12">
+                    <div class="text-white/60 text-xl mb-4">Tap to roll</div>
+                    @if (FullscreenDice.Type == "standard")
+                    {
+                        <div class="text-white/40 text-lg">
+                            1-@FullscreenDice.Sides
+                        </div>
+                    }
+                    else if (FullscreenDice.Mode == "number")
+                    {
+                        <div class="text-white/40 text-lg">
+                            @FullscreenDice.Min-@FullscreenDice.Max
+                        </div>
+                    }
+                    else
+                    {
+                        <div class="flex justify-center gap-2 mb-4">
+                            @foreach (var color in FullscreenDice.Colors)
+                            {
+                                <div
+                                    class="w-8 h-8 rounded-full border-2 border-white/40"
+                                    style="background-color: @color;">
+                                </div>
+                            }
+                        </div>
+                    }
+                </div>
+            }
+
+            <button
+                @onclick="() => RollDice(FullscreenDice, true)"
+                disabled="@IsRolling"
+                class="w-64 h-64 rounded-full bg-white/20 backdrop-blur-sm border-4 border-white/40
+                         hover:bg-white/30 active:scale-95 transition-all duration-200 shadow-2xl
+                         @(IsRolling ? "animate-pulse" : "")">
+                <div class="text-white">
+                    @if (FullscreenDice.Type == "standard")
+                    {
+                        @if (FullscreenDice.Name == "d4")
+                        {
+                            <div class="mx-auto mb-4 flex justify-center">
+                                <Dice4Icon Width="96" Height="96" />
+                            </div>
+                        }
+                        else if (FullscreenDice.Name == "d6")
+                        {
+                            <div class="mx-auto mb-4 flex justify-center">
+                                <Dice6Icon Width="96" Height="96" />
+                            </div>
+                        }
+                        else if (FullscreenDice.Name == "d8")
+                        {
+                            <div class="mx-auto mb-4 flex justify-center">
+                                <Dice1Icon Width="96" Height="96" />
+                            </div>
+                        }
+                        else if (FullscreenDice.Name == "d10")
+                        {
+                            <div class="mx-auto mb-4 flex justify-center">
+                                <Dice2Icon Width="96" Height="96" />
+                            </div>
+                        }
+                        else if (FullscreenDice.Name == "d12")
+                        {
+                            <div class="mx-auto mb-4 flex justify-center">
+                                <Dice3Icon Width="96" Height="96" />
+                            </div>
+                        }
+                        else if (FullscreenDice.Name == "d20")
+                        {
+                            <div class="mx-auto mb-4 flex justify-center">
+                                <Dice5Icon Width="96" Height="96" />
+                            </div>
+                        }
+                        <div class="text-2xl font-bold">@FullscreenDice.Name</div>
+                    }
+                    else
+                    {
+                        @if (FullscreenDice.Mode == "number")
+                        {
+                            <div class="mx-auto mb-4 flex justify-center">
+                                <HashIcon Width="96" Height="96" />
+                            </div>
+                        }
+                        else
+                        {
+                            <div class="mx-auto mb-4 flex justify-center">
+                                <PaletteIcon Width="96" Height="96" />
+                            </div>
+                        }
+                        <div class="text-2xl font-bold">@FullscreenDice.Name</div>
+                    }
+                </div>
+            </button>
+
+            <div class="mt-8 text-white/60 text-center">
+                <div class="text-sm">
+                    @(IsRolling ? "Rolling..." : "Tap the dice to roll")
+                </div>
+            </div>
+        </div>
+    </div>
+}
+
+<div class="max-w-md mx-auto p-4">
+    <div class="text-center mb-8">
+        <h1 class="text-5xl font-bold text-white drop-shadow-2xl">
+            DiceRoller
+        </h1>
+        <p class="text-white/60 mt-2 text-lg">Roll the dice, make decisions</p>
+    </div>
+
+    @if (Rolls.Any())
+    {
+        <div class="bg-white/10 backdrop-blur-sm rounded-2xl p-6 mb-6 shadow-2xl border border-white/20">
+            <div class="text-center">
+                <div class="text-white/60 text-sm mb-4">Latest Roll</div>
+                @foreach (var roll in Rolls)
+                {
+                    <div key="@roll.Id" class="transition-all duration-500 @(IsRolling ? "scale-110 rotate-12" : "scale-100")">
+                        @if (roll.Type == "number")
+                        {
+                            <div class="text-6xl font-bold text-white mb-4 drop-shadow-2xl">@roll.Result</div>
+                        }
+                        else
+                        {
+                            <div class="flex justify-center mb-4">
+                                <div
+                                    class="w-20 h-20 rounded-full border-4 border-white shadow-2xl"
+                                    style="background-color: @roll.Result;">
+                                </div>
+                            </div>
+                        }
+                        <div class="text-white/80 text-lg font-medium">@roll.Dice</div>
+                        <button
+                            @onclick="() => EnterFullscreen(StandardDice.Concat(CustomDice).FirstOrDefault(d => d.Name == roll.Dice))"
+                            class="mt-3 text-white/80 hover:text-white text-sm underline transition-colors">
+                            Roll in fullscreen
+                        </button>
+                    </div>
+                }
+            </div>
+        </div>
+    }
+
+    <div class="mb-6">
+        <h2 class="text-2xl font-semibold text-white mb-4 text-center">Standard Dice</h2>
+        <div class="grid grid-cols-3 gap-3">
+            @foreach (var dice in StandardDice)
+            {
+                <div key="@dice.Name" class="relative group">
+                    <button
+                        @onclick="() => RollDice(dice)"
+                        disabled="@IsRolling"
+                        class="w-full bg-white/10 backdrop-blur-sm hover:bg-white/20 disabled:opacity-50 rounded-xl p-4 shadow-xl border border-white/20 transition-all duration-200 hover:scale-105 active:scale-95">
+                        @if (dice.Name == "d4")
+                    {
+                        <div class="mx-auto mb-2 flex justify-center text-white">
+                            <Dice4Icon Width="32" Height="32" />
+                        </div>
+                    }
+                    else if (dice.Name == "d6")
+                    {
+                        <div class="mx-auto mb-2 flex justify-center text-white">
+                            <Dice6Icon Width="32" Height="32" />
+                        </div>
+                    }
+                    else if (dice.Name == "d8")
+                    {
+                        <div class="mx-auto mb-2 flex justify-center text-white">
+                            <Dice1Icon Width="32" Height="32" />
+                        </div>
+                    }
+                    else if (dice.Name == "d10")
+                    {
+                        <div class="mx-auto mb-2 flex justify-center text-white">
+                            <Dice2Icon Width="32" Height="32" />
+                        </div>
+                    }
+                    else if (dice.Name == "d12")
+                    {
+                        <div class="mx-auto mb-2 flex justify-center text-white">
+                            <Dice3Icon Width="32" Height="32" />
+                        </div>
+                    }
+                    else if (dice.Name == "d20")
+                    {
+                        <div class="mx-auto mb-2 flex justify-center text-white">
+                            <Dice5Icon Width="32" Height="32" />
+                        </div>
+                    }
+                        <div class="text-base font-medium text-white">@dice.Name</div>
+                    </button>
+                    <button
+                        @onclick="() => EnterFullscreen(dice)"
+                        class="absolute inset-0 bg-white/10 backdrop-blur-sm text-white rounded-xl opacity-0 group-hover:opacity-100 transition-all duration-200 flex items-center justify-center text-sm font-medium">
+                        Fullscreen
+                    </button>
+                </div>
+            }
+        </div>
+    </div>
+
+    <div class="mb-6">
+        <div class="flex justify-between items-center mb-4">
+            <h2 class="text-2xl font-semibold text-white">Custom Dice</h2>
+            <button
+                @onclick="() => ShowCustomForm = !ShowCustomForm"
+                class="bg-white/20 hover:bg-white/30 text-white p-2 rounded-lg transition-colors backdrop-blur-sm border border-white/20">
+            <PlusIcon Width="20" Height="20" /></button>
+        </div>
+
+        @if (CustomDice.Any())
+        {
+            <div class="grid grid-cols-2 gap-3 mb-4">
+                @foreach (var dice in CustomDice)
+                {
+                    <div key="@dice.Id" class="relative group">
+                        <button
+                            @onclick="() => RollDice(dice)"
+                            disabled="@IsRolling"
+                            class="w-full bg-white/10 backdrop-blur-sm hover:bg-white/20 disabled:opacity-50 rounded-xl p-4 shadow-xl border border-white/20 transition-all duration-200 hover:scale-105 active:scale-95">
+                            @if (dice.Mode == "number")
+                            {
+                                <div class="mx-auto mb-2 flex justify-center text-white">
+                                    <HashIcon Width="24" Height="24" />
+                                </div>
+                            }
+                            else
+                            {
+                                <div class="mx-auto mb-2 flex justify-center text-white">
+                                    <PaletteIcon Width="24" Height="24" />
+                                </div>
+                            }
+                            <div class="text-sm font-medium text-white mb-1">@dice.Name</div>
+                            <div class="text-xs text-white/60">
+                                @(dice.Mode == "number" ? $"{dice.Min}-{dice.Max}" : $"{dice.Colors.Count} colors")
+                            </div>
+                        </button>
+                        <button
+                            @onclick="() => EnterFullscreen(dice)"
+                            class="absolute inset-0 bg-white/10 backdrop-blur-sm text-white rounded-xl opacity-0 group-hover:opacity-100 transition-all duration-200 flex items-center justify-center text-xs font-medium">
+                            Fullscreen
+                        </button>
+                        <button
+                            @onclick="() => RemoveCustomDice(dice.Id)"
+                            class="absolute -top-2 -right-2 bg-red-500 hover:bg-red-600 text-white rounded-full w-6 h-6 flex items-center justify-center text-sm opacity-0 group-hover:opacity-100 transition-all z-10">
+                            <XIcon Width="12" Height="12" />
+                        </button>
+                    </div>
+                }
+            </div>
+        }
+
+        @if (ShowCustomForm)
+        {
+            <div class="bg-white/10 backdrop-blur-sm rounded-2xl p-6 shadow-2xl border border-white/20 mb-6">
+                <h3 class="text-xl font-semibold mb-6 text-white">Create Custom Dice</h3>
+
+                <div class="space-y-6">
+                    <div>
+                        <label class="block text-sm font-medium text-white/80 mb-3">Name</label>
+                        <input
+                            type="text"
+                            @bind="CustomName"
+                            placeholder="e.g., Decision Dice"
+                            class="w-full px-4 py-3 bg-white/10 border border-white/20 rounded-xl focus:outline-none focus:ring-2 focus:ring-white/40 text-white placeholder-white/50 backdrop-blur-sm"
+                        />
+                    </div>
+
+                    <div>
+                        <label class="block text-sm font-medium text-white/80 mb-3">Type</label>
+                        <div class="flex gap-2">
+                            <button
+                                @onclick='() => CustomType = "number"'
+                                class="flex-1 py-3 px-4 rounded-xl border backdrop-blur-sm transition-colors @(CustomType == "number" ? "bg-white/20 border-white/40 text-white" : "bg-white/10 border-white/20 text-white/70")">
+                                Numbers
+                            </button>
+                            <button
+                                @onclick='() => CustomType = "color"'
+                                class="flex-1 py-3 px-4 rounded-xl border backdrop-blur-sm transition-colors @(CustomType == "color" ? "bg-white/20 border-white/40 text-white" : "bg-white/10 border-white/20 text-white/70")">
+                                Colors
+                            </button>
+                        </div>
+                    </div>
+
+                    @if (CustomType == "number")
+                    {
+                        <div class="grid grid-cols-2 gap-4">
+                            <div>
+                                <label class="block text-sm font-medium text-white/80 mb-3">Min</label>
+                                <input
+                                    type="number"
+                                    @bind="CustomMin"
+                                    class="w-full px-4 py-3 bg-white/10 border border-white/20 rounded-xl focus:outline-none focus:ring-2 focus:ring-white/40 text-white backdrop-blur-sm"
+                                />
+                            </div>
+                            <div>
+                                <label class="block text-sm font-medium text-white/80 mb-3">Max</label>
+                                <input
+                                    type="number"
+                                    @bind="CustomMax"
+                                    class="w-full px-4 py-3 bg-white/10 border border-white/20 rounded-xl focus:outline-none focus:ring-2 focus:ring-white/40 text-white backdrop-blur-sm"
+                                />
+                            </div>
+                        </div>
+                    }
+                    else
+                    {
+                        <div>
+                            <label class="block text-sm font-medium text-white/80 mb-3">Colors</label>
+                            <div class="space-y-3">
+                                @for (int i = 0; i < CustomColors.Count; i++)
+                                {
+                                    var index = i; // Create a local copy for the lambda
+                                    <div key="@index" class="flex items-center gap-3">
+                                        <input
+                                            type="color"
+                                            value="@CustomColors[index]"
+                                            @onchange="(e) => UpdateColor(index, e.Value?.ToString() ?? CustomColors[index])"
+                                            class="w-10 h-10 rounded-lg border-2 border-white/20 cursor-pointer"
+                                        />
+                                        <div class="flex-1 text-sm text-white/80 font-mono">@CustomColors[index]</div>
+                                        @if (CustomColors.Count > 1)
+                                        {
+                                            <button
+                                                @onclick="() => RemoveColor(index)"
+                                                class="text-red-400 hover:text-red-300 text-sm px-2 py-1 rounded transition-colors">
+                                                Remove
+                                            </button>
+                                        }
+                                    </div>
+                                }
+                                @if (CustomColors.Count < 10)
+                                {
+                                    <div class="flex items-center gap-3">
+                                        <input
+                                            type="color"
+                                            @bind="TempColor"
+                                            @bind:event="oninput"
+                                            class="w-10 h-10 rounded-lg border-2 border-white/20 cursor-pointer"
+                                        />
+                                        <button
+                                            @onclick="AddColor"
+                                            class="text-white/80 hover:text-white text-sm px-3 py-2 bg-white/10 rounded-lg transition-colors">
+                                            Add Color
+                                        </button>
+                                    </div>
+                                }
+                            </div>
+                        </div>
+                    }
+
+                    <div class="flex gap-3">
+                        <button
+                            @onclick="AddCustomDice"
+                            disabled="@(string.IsNullOrWhiteSpace(CustomName))"
+                            class="flex-1 bg-white/20 hover:bg-white/30 disabled:bg-white/10 text-white py-3 px-4 rounded-xl transition-colors backdrop-blur-sm border border-white/20">
+                            Create Dice
+                        </button>
+                        <button
+                            @onclick="() => ShowCustomForm = false"
+                            class="px-4 py-3 text-white/80 hover:text-white transition-colors">
+                            Cancel
+                        </button>
+                    </div>
+                </div>
+            </div>
+        }
+    </div>
+
+    <div class="mb-6">
+        <div class="flex justify-between items-center mb-4">
+            <h2 class="text-xl font-semibold text-white">History</h2>
+            <div class="flex gap-2">
+                <button
+                    @onclick="() => ShowHistory = !ShowHistory"
+                    class="text-white/80 hover:text-white p-2 rounded-lg transition-colors">
+                    <HistoryIcon Width="20" Height="20" /></button>
+                @if (History.Any())
+                {
+                    <button
+                        @onclick="ClearHistory"
+                        class="text-white/80 hover:text-white text-sm px-3 py-1 bg-white/10 rounded-lg transition-colors">
+                        Clear
+                    </button>
+                }
+            </div>
+        </div>
+
+        @if (ShowHistory && History.Any())
+        {
+            <div class="bg-white/10 backdrop-blur-sm rounded-2xl p-4 shadow-2xl border border-white/20 max-h-60 overflow-y-auto">
+                <div class="space-y-2">
+                    @foreach (var roll in History)
+                    {
+                        <div key="@roll.Id" class="flex items-center justify-between py-2 px-3 bg-white/5 rounded-lg">
+                            <div class="flex items-center gap-3">
+                                <div class="text-sm font-medium text-white/80">@roll.Dice</div>
+                                @if (roll.Type == "number")
+                                {
+                                    <div class="text-lg font-bold text-white">@roll.Result</div>
+                                }
+                                else
+                                {
+                                    <div
+                                        class="w-5 h-5 rounded-full border-2 border-white/40 shadow-sm"
+                                        style="background-color: @roll.Result;">
+                                    </div>
+                                }
+                            </div>
+                            <div class="text-xs text-white/60">@FormatTime(roll.Timestamp)</div>
+                        </div>
+                    }
+                </div>
+            </div>
+        }
+
+        @if (ShowHistory && !History.Any())
+        {
+            <div class="bg-white/10 backdrop-blur-sm rounded-2xl p-6 shadow-2xl border border-white/20 text-center">
+                <div class="text-white/60">No rolls yet</div>
+            </div>
+        }
+    </div>
+</div>
+
+@code {
+    private List<RollData> Rolls { get; set; } = new List<RollData>();
+    private List<RollData> History { get; set; } = new List<RollData>();
+    private List<Dice> CustomDice { get; set; } = new List<Dice>();
+    private bool ShowCustomForm { get; set; } = false;
+    private bool ShowHistory { get; set; } = false;
+    private bool IsRolling { get; set; } = false;
+    private Dice? FullscreenDice { get; set; }
+    private RollData? FullscreenResult { get; set; }
+
+    // Custom dice form state
+    private string CustomName { get; set; } = string.Empty;
+    private string CustomType { get; set; } = "number";
+    private int CustomMin { get; set; } = 1;
+    private int CustomMax { get; set; } = 6;
+    private List<string> CustomColors { get; set; } = new List<string> { "#FF6B6B", "#4ECDC4", "#45B7D1" };
+    private string TempColor { get; set; } = "#FF6B6B";
+
+    private List<Dice> StandardDice = new List<Dice>
+    {
+        new Dice { Name = "d4", Sides = 4, Type = "standard" },
+        new Dice { Name = "d6", Sides = 6, Type = "standard" },
+        new Dice { Name = "d8", Sides = 8, Type = "standard" },
+        new Dice { Name = "d10", Sides = 10, Type = "standard" },
+        new Dice { Name = "d12", Sides = 12, Type = "standard" },
+        new Dice { Name = "d20", Sides = 20, Type = "standard" }
+    };
+
+    private System.Timers.Timer? _rollTimer;
+
+    protected override void OnInitialized()
+    {
+        _rollTimer = new System.Timers.Timer(500);
+        _rollTimer.Elapsed += HandleRollTimerElapsed;
+        _rollTimer.AutoReset = false;
+    }
+
+    private void HandleRollTimerElapsed(object? sender, ElapsedEventArgs e)
+    {
+        InvokeAsync(() => {
+            PerformRoll();
+            IsRolling = false;
+            StateHasChanged();
+        });
+    }
+
+    private Dice? _currentDiceToRoll;
+    private bool _isFullscreenRoll;
+
+    private void RollDice(Dice dice, bool isFullscreen = false)
+    {
+        IsRolling = true;
+        _currentDiceToRoll = dice;
+        _isFullscreenRoll = isFullscreen;
+        _rollTimer?.Start();
+    }
+
+    private void PerformRoll()
+    {
+        if (_currentDiceToRoll == null) return;
+
+        object? result;
+        long timestamp = DateTimeOffset.UtcNow.ToUnixTimeMilliseconds();
+
+        if (_currentDiceToRoll.Type == "standard")
+        {
+            result = new Random().Next(1, _currentDiceToRoll.Sides + 1);
+            var rollData = new RollData
+            {
+                Id = timestamp,
+                Dice = _currentDiceToRoll.Name,
+                Result = result,
+                Type = "number",
+                Timestamp = timestamp
+            };
+            if (_isFullscreenRoll)
+            {
+                FullscreenResult = rollData;
+            }
+            else
+            {
+                Rolls = new List<RollData> { rollData };
+            }
+            History.Insert(0, rollData);
+            if (History.Count > 20) History.RemoveAt(History.Count - 1);
+        }
+        else if (_currentDiceToRoll.Type == "custom")
+        {
+            if (_currentDiceToRoll.Mode == "number")
+            {
+                result = new Random().Next(_currentDiceToRoll.Min, _currentDiceToRoll.Max + 1);
+                var rollData = new RollData
+                {
+                    Id = timestamp,
+                    Dice = _currentDiceToRoll.Name,
+                    Result = result,
+                    Type = "number",
+                    Timestamp = timestamp
+                };
+                if (_isFullscreenRoll)
+                {
+                    FullscreenResult = rollData;
+                }
+                else
+                {
+                    Rolls = new List<RollData> { rollData };
+                }
+                History.Insert(0, rollData);
+                if (History.Count > 20) History.RemoveAt(History.Count - 1);
+            }
+            else
+            {
+                var colorIndex = new Random().Next(0, _currentDiceToRoll.Colors?.Count ?? 0);
+                result = _currentDiceToRoll.Colors?[colorIndex];
+                var rollData = new RollData
+                {
+                    Id = timestamp,
+                    Dice = _currentDiceToRoll.Name,
+                    Result = result,
+                    Type = "color",
+                    Timestamp = timestamp
+                };
+                if (_isFullscreenRoll)
+                {
+                    FullscreenResult = rollData;
+                }
+                else
+                {
+                    Rolls = new List<RollData> { rollData };
+                }
+                History.Insert(0, rollData);
+                if (History.Count > 20) History.RemoveAt(History.Count - 1);
+            }
+        }
+    }
+
+    private void EnterFullscreen(Dice? dice)
+    {
+        FullscreenDice = dice;
+        FullscreenResult = null;
+    }
+
+    private void ExitFullscreen()
+    {
+        FullscreenDice = null;
+        FullscreenResult = null;
+    }
+
+    private void AddCustomDice()
+    {
+        if (string.IsNullOrWhiteSpace(CustomName)) return;
+
+        var newDice = new Dice
+        {
+            Id = DateTimeOffset.UtcNow.ToUnixTimeMilliseconds(),
+            Name = CustomName,
+            Type = "custom",
+            Mode = CustomType
+        };
+
+        if (CustomType == "number")
+        {
+            newDice.Min = CustomMin;
+            newDice.Max = CustomMax;
+        }
+        else
+        {
+            newDice.Colors = new List<string>(CustomColors);
+        }
+
+        CustomDice.Add(newDice);
+        CustomName = string.Empty;
+        CustomMin = 1;
+        CustomMax = 6;
+        CustomColors = new List<string> { "#FF6B6B", "#4ECDC4", "#45B7D1" };
+        ShowCustomForm = false;
+    }
+
+    private void RemoveCustomDice(long id)
+    {
+        CustomDice.RemoveAll(d => d.Id == id);
+    }
+
+    private void AddColor()
+    {
+        if (CustomColors.Count < 10)
+        {
+            CustomColors.Add(TempColor);
+        }
+    }
+
+    private void RemoveColor(int index)
+    {
+        if (CustomColors.Count > 1)
+        {
+            CustomColors.RemoveAt(index);
+        }
+    }
+
+    private void UpdateColor(int index, string newColor)
+    {
+        if (index >= 0 && index < CustomColors.Count)
+        {
+            CustomColors[index] = newColor;
+            StateHasChanged();
+        }
+    }
+
+    private void ClearHistory()
+    {
+        History.Clear();
+        StateHasChanged();
+    }
+
+    private string FormatTime(long timestamp)
+    {
+        var dateTime = DateTimeOffset.FromUnixTimeMilliseconds(timestamp).LocalDateTime;
+        return dateTime.ToString("HH:mm");
+    }
+
+    public void Dispose()
+    {
+        _rollTimer?.Dispose();
+    }
+}
+

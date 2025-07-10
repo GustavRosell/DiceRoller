@@ -1,0 +1,43 @@
+/** @type {import('tailwindcss').Config} */
+module.exports = {
+  content: [
+    './Components/**/*.razor',
+    './wwwroot/**/*.html',
+    './**/*.cshtml',
+  ],
+  safelist: [
+    'from-indigo-900',
+    'via-purple-900',
+    'to-pink-900',
+    'bg-gradient-to-br',
+    'backdrop-blur-sm',
+    'text-white',
+    'hover:bg-white/20',
+    'hover:bg-white/30',
+    'bg-white/10',
+    'bg-white/20',
+    'border-white/20',
+    'border-white/40',
+    'text-white/60',
+    'text-white/80',
+    'text-white/40',
+    'shadow-2xl',
+    'drop-shadow-2xl',
+    'rounded-xl',
+    'rounded-2xl',
+    'rounded-full',
+    'transition-all',
+    'duration-200',
+    'duration-500',
+    'hover:scale-105',
+    'active:scale-95',
+    'animate-pulse',
+    'scale-110',
+    'rotate-12',
+    'scale-100'
+  ],
+  theme: {
+    extend: {},
+  },
+  plugins: [],
+}
