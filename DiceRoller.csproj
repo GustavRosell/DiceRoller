@@ -6,4 +6,12 @@
     <ImplicitUsings>enable</ImplicitUsings>
   </PropertyGroup>
 
+  <!-- Automatically build Tailwind CSS during dotnet build -->
+  <Target Name="BuildTailwindCSS" BeforeTargets="Build">
+    <Message Text="Building Tailwind CSS..." Importance="high" />
+    <Exec Command="npx tailwindcss -i ./wwwroot/css/tailwind.css -o ./wwwroot/app.css --minify" 
+          ContinueOnError="false" 
+          WorkingDirectory="$(ProjectDir)" />
+  </Target>
+
 </Project>

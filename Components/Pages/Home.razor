@@ -212,7 +212,7 @@
                     <button
                         @onclick="() => RollDice(dice)"
                         disabled="@IsRolling"
-                        class="w-full h-40 bg-white/10 backdrop-blur-sm hover:bg-white/20 disabled:opacity-50 rounded-xl p-4 shadow-xl border border-white/20 transition-all duration-200 hover:scale-105 active:scale-95 flex flex-col justify-center">
+                        class="w-full h-40 bg-white/10 backdrop-blur-sm hover:bg-white/20 hover:border-white/40 hover:shadow-2xl hover:scale-105 active:scale-95 disabled:opacity-50 rounded-xl p-4 shadow-xl border border-white/20 transition-all duration-300 ease-out flex flex-col justify-center transform">
                         @if (dice.Name == "d4")
                         {
                             <div class="mx-auto mb-2 flex justify-center text-white">
@@ -283,7 +283,7 @@
                         <button
                             @onclick="() => RollDice(dice)"
                             disabled="@IsRolling"
-                            class="w-full h-40 bg-white/10 backdrop-blur-sm hover:bg-white/20 disabled:opacity-50 rounded-xl p-4 shadow-xl border border-white/20 transition-all duration-200 hover:scale-105 active:scale-95 flex flex-col justify-center">
+                            class="w-full h-40 bg-white/10 backdrop-blur-sm hover:bg-white/20 hover:border-white/40 hover:shadow-2xl hover:scale-105 active:scale-95 disabled:opacity-50 rounded-xl p-4 shadow-xl border border-white/20 transition-all duration-300 ease-out flex flex-col justify-center transform">
                             <div class="text-sm font-medium text-white mb-1">@dice.Name</div>
                             <div class="text-xs text-white/60">
                                 @(dice.Mode == "number" ? $"{dice.Min}-{dice.Max}" : $"{dice.Colors?.Count ?? 0} colors")
@@ -296,8 +296,8 @@
                         </button>
                         <button
                             @onclick="() => RemoveCustomDice(dice.Id)"
-                            class="absolute -top-2 -right-2 bg-red-500 hover:bg-red-600 text-white rounded-full w-6 h-6 flex items-center justify-center text-sm opacity-0 group-hover:opacity-100 transition-all z-10">
-                            <XIcon Width="12" Height="12" />
+                            class="absolute -top-2 -right-2 bg-red-500 hover:bg-red-600 hover:scale-110 text-white rounded-full w-7 h-7 flex items-center justify-center text-sm opacity-0 group-hover:opacity-100 transition-all duration-200 ease-out z-10 shadow-lg">
+                            <XIcon Width="14" Height="14" />
                         </button>
                     </div>
                 }
