@@ -2,7 +2,7 @@
 @using System.Timers
 @rendermode InteractiveServer
 
-<PageTitle>DiceRoller</PageTitle>
+<PageTitle>Bex og Gulle kaster terninger</PageTitle>
 
 @if (FullscreenDice != null)
 {
@@ -38,7 +38,6 @@
                             </div>
                         }
                     </div>
-                    <div class="text-white/80 text-xl font-medium">@FullscreenResult.Dice</div>
                 </div>
             }
             else
@@ -60,12 +59,15 @@
                     else
                     {
                         <div class="flex justify-center gap-2 mb-4">
-                            @foreach (var color in FullscreenDice.Colors)
+                            @if (FullscreenDice.Colors != null)
                             {
-                                <div
-                                    class="w-8 h-8 rounded-full border-2 border-white/40"
-                                    style="background-color: @color;">
-                                </div>
+                                @foreach (var color in FullscreenDice.Colors)
+                                {
+                                    <div
+                                        class="w-8 h-8 rounded-full border-2 border-white/40"
+                                        style="background-color: @color;">
+                                    </div>
+                                }
                             }
                         </div>
                     }
@@ -117,7 +119,7 @@
                                 <Dice5Icon Width="96" Height="96" />
                             </div>
                         }
-                        <div class="text-2xl font-bold">@FullscreenDice.Name</div>
+                        <div class="text-2xl font-bold">Roll</div>
                     }
                     else
                     {
@@ -129,11 +131,24 @@
                         }
                         else
                         {
-                            <div class="mx-auto mb-4 flex justify-center">
-                                <PaletteIcon Width="96" Height="96" />
+                            <div class="mx-auto mb-4 flex justify-center gap-2">
+                                @if (FullscreenDice.Colors != null && FullscreenDice.Colors.Any())
+                                {
+                                    @foreach (var color in FullscreenDice.Colors.Take(3))
+                                    {
+                                        <div
+                                            class="w-8 h-8 rounded-full border-2 border-white/60"
+                                            style="background-color: @color;">
+                                        </div>
+                                    }
+                                    @if (FullscreenDice.Colors.Count > 3)
+                                    {
+                                        <div class="text-white/60 text-sm self-center">+@(FullscreenDice.Colors.Count - 3)</div>
+                                    }
+                                }
                             </div>
                         }
-                        <div class="text-2xl font-bold">@FullscreenDice.Name</div>
+                        <div class="text-2xl font-bold">Roll</div>
                     }
                 </div>
             </button>
@@ -149,10 +164,10 @@
 
 <div class="max-w-md mx-auto p-4">
     <div class="text-center mb-8">
-        <h1 class="text-5xl font-bold text-white drop-shadow-2xl">
-            DiceRoller
+        <h1 class="text-4xl font-bold text-white drop-shadow-2xl">
+            Bex og Gulle kaster terninger
         </h1>
-        <p class="text-white/60 mt-2 text-lg">Roll the dice, make decisions</p>
+        <p class="text-white/60 mt-2 text-lg">jeg burde arbejde i stedet</p>
     </div>
 
     @if (Rolls.Any())
@@ -190,51 +205,58 @@
 
     <div class="mb-6">
         <h2 class="text-2xl font-semibold text-white mb-4 text-center">Standard Dice</h2>
-        <div class="grid grid-cols-3 gap-3">
+        <div class="grid grid-cols-2 gap-4">
             @foreach (var dice in StandardDice)
             {
                 <div key="@dice.Name" class="relative group">
                     <button
                         @onclick="() => RollDice(dice)"
                         disabled="@IsRolling"
-                        class="w-full bg-white/10 backdrop-blur-sm hover:bg-white/20 disabled:opacity-50 rounded-xl p-4 shadow-xl border border-white/20 transition-all duration-200 hover:scale-105 active:scale-95">
+                        class="w-full h-32 bg-white/10 backdrop-blur-sm hover:bg-white/20 disabled:opacity-50 rounded-xl p-4 shadow-xl border border-white/20 transition-all duration-200 hover:scale-105 active:scale-95 flex flex-col justify-center">
                         @if (dice.Name == "d4")
-                    {
-                        <div class="mx-auto mb-2 flex justify-center text-white">
-                            <Dice4Icon Width="32" Height="32" />
-                        </div>
-                    }
-                    else if (dice.Name == "d6")
-                    {
-                        <div class="mx-auto mb-2 flex justify-center text-white">
-                            <Dice6Icon Width="32" Height="32" />
-                        </div>
-                    }
-                    else if (dice.Name == "d8")
-                    {
-                        <div class="mx-auto mb-2 flex justify-center text-white">
-                            <Dice1Icon Width="32" Height="32" />
-                        </div>
-                    }
-                    else if (dice.Name == "d10")
-                    {
-                        <div class="mx-auto mb-2 flex justify-center text-white">
-                            <Dice2Icon Width="32" Height="32" />
-                        </div>
-                    }
-                    else if (dice.Name == "d12")
-                    {
-                        <div class="mx-auto mb-2 flex justify-center text-white">
-                            <Dice3Icon Width="32" Height="32" />
-                        </div>
-                    }
+                        {
+                            <div class="mx-auto mb-2 flex justify-center text-white">
+                                <Dice4Icon Width="40" Height="40" />
+                            </div>
+                        }
+                        else if (dice.Name == "d6")
+                        {
+                            <div class="mx-auto mb-2 flex justify-center text-white">
+                                <Dice6Icon Width="40" Height="40" />
+                            </div>
+                        }
+                        else if (dice.Name == "d8")
+                        {
+                            <div class="mx-auto mb-2 flex justify-center gap-1 text-white">
+                                <Dice4Icon Width="32" Height="32" />
+                                <Dice4Icon Width="32" Height="32" />
+                            </div>
+                        }
+                        else if (dice.Name == "d10")
+                        {
+                            <div class="mx-auto mb-2 flex justify-center gap-1 text-white">
+                                <Dice5Icon Width="32" Height="32" />
+                                <Dice5Icon Width="32" Height="32" />
+                            </div>
+                        }
+                        else if (dice.Name == "d12")
+                        {
+                            <div class="mx-auto mb-2 flex justify-center gap-1 text-white">
+                                <Dice6Icon Width="32" Height="32" />
+                                <Dice6Icon Width="32" Height="32" />
+                            </div>
+                        }
                     else if (dice.Name == "d20")
                     {
-                        <div class="mx-auto mb-2 flex justify-center text-white">
-                            <Dice5Icon Width="32" Height="32" />
+                        <div class="mx-auto mb-2 flex justify-center h-10 items-center text-white">
+                            <div class="grid grid-cols-2 gap-0.5">
+                                <Dice5Icon Width="20" Height="20" />
+                                <Dice5Icon Width="20" Height="20" />
+                                <Dice5Icon Width="20" Height="20" />
+                                <Dice5Icon Width="20" Height="20" />
+                            </div>
                         </div>
                     }
-                        <div class="text-base font-medium text-white">@dice.Name</div>
                     </button>
                     <button
                         @onclick="() => EnterFullscreen(dice)"
@@ -264,22 +286,10 @@
                         <button
                             @onclick="() => RollDice(dice)"
                             disabled="@IsRolling"
-                            class="w-full bg-white/10 backdrop-blur-sm hover:bg-white/20 disabled:opacity-50 rounded-xl p-4 shadow-xl border border-white/20 transition-all duration-200 hover:scale-105 active:scale-95">
-                            @if (dice.Mode == "number")
-                            {
-                                <div class="mx-auto mb-2 flex justify-center text-white">
-                                    <HashIcon Width="24" Height="24" />
-                                </div>
-                            }
-                            else
-                            {
-                                <div class="mx-auto mb-2 flex justify-center text-white">
-                                    <PaletteIcon Width="24" Height="24" />
-                                </div>
-                            }
+                            class="w-full h-32 bg-white/10 backdrop-blur-sm hover:bg-white/20 disabled:opacity-50 rounded-xl p-4 shadow-xl border border-white/20 transition-all duration-200 hover:scale-105 active:scale-95 flex flex-col justify-center">
                             <div class="text-sm font-medium text-white mb-1">@dice.Name</div>
                             <div class="text-xs text-white/60">
-                                @(dice.Mode == "number" ? $"{dice.Min}-{dice.Max}" : $"{dice.Colors.Count} colors")
+                                @(dice.Mode == "number" ? $"{dice.Min}-{dice.Max}" : $"{dice.Colors?.Count ?? 0} colors")
                             </div>
                         </button>
                         <button
