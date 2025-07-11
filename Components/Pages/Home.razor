@@ -212,7 +212,7 @@
                     <button
                         @onclick="() => RollDice(dice)"
                         disabled="@IsRolling"
-                        class="w-full h-32 bg-white/10 backdrop-blur-sm hover:bg-white/20 disabled:opacity-50 rounded-xl p-4 shadow-xl border border-white/20 transition-all duration-200 hover:scale-105 active:scale-95 flex flex-col justify-center">
+                        class="w-full h-40 bg-white/10 backdrop-blur-sm hover:bg-white/20 disabled:opacity-50 rounded-xl p-4 shadow-xl border border-white/20 transition-all duration-200 hover:scale-105 active:scale-95 flex flex-col justify-center">
                         @if (dice.Name == "d4")
                         {
                             <div class="mx-auto mb-2 flex justify-center text-white">
@@ -245,18 +245,15 @@
                                 <Dice6Icon Width="32" Height="32" />
                                 <Dice6Icon Width="32" Height="32" />
                             </div>
-                        }
-                    else if (dice.Name == "d20")
-                    {
-                        <div class="mx-auto mb-2 flex justify-center h-10 items-center text-white">
-                            <div class="grid grid-cols-2 gap-0.5">
-                                <Dice5Icon Width="20" Height="20" />
-                                <Dice5Icon Width="20" Height="20" />
-                                <Dice5Icon Width="20" Height="20" />
-                                <Dice5Icon Width="20" Height="20" />
+                        }                        else if (dice.Name == "d20")
+                        {
+                            <div class="mx-auto mb-2 flex justify-center gap-1 text-white">
+                                <Dice5Icon Width="32" Height="32" />
+                                <Dice5Icon Width="32" Height="32" />
+                                <Dice5Icon Width="32" Height="32" />
+                                <Dice5Icon Width="32" Height="32" />
                             </div>
-                        </div>
-                    }
+                        }
                     </button>
                     <button
                         @onclick="() => EnterFullscreen(dice)"
@@ -286,7 +283,7 @@
                         <button
                             @onclick="() => RollDice(dice)"
                             disabled="@IsRolling"
-                            class="w-full h-32 bg-white/10 backdrop-blur-sm hover:bg-white/20 disabled:opacity-50 rounded-xl p-4 shadow-xl border border-white/20 transition-all duration-200 hover:scale-105 active:scale-95 flex flex-col justify-center">
+                            class="w-full h-40 bg-white/10 backdrop-blur-sm hover:bg-white/20 disabled:opacity-50 rounded-xl p-4 shadow-xl border border-white/20 transition-all duration-200 hover:scale-105 active:scale-95 flex flex-col justify-center">
                             <div class="text-sm font-medium text-white mb-1">@dice.Name</div>
                             <div class="text-xs text-white/60">
                                 @(dice.Mode == "number" ? $"{dice.Min}-{dice.Max}" : $"{dice.Colors?.Count ?? 0} colors")
